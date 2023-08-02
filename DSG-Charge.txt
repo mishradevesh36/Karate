@@ -1,0 +1,605 @@
+PL = 1000006
+Leave Code	:	100364449
+Holiday Code = 100364681
+Project Code = 100623991
+
+--------------------
+
+plantuml - flowdiagrams
+
+Daily Standup
+Meeting number (access code): 596210114 
+Meeting password: jcFWbMxh74
+
+Meeting number (access code): 596 210 114 Meeting password: jcFWbMxh743
+
+Retro Meeting
+Meeting number (access code): 599 625 558 Meeting password: RZi5XyPdi35    
+
+HAP stats page: https://dsg-api-svcs.geo-cde.pks.t-mobile.com/stats  (admin/donotShare)
+Harikant
+
+DB-URL = despp1.unix.gsm1900.org/
+Port = 3381
+SID  = despp1
+
+Kill Tomcat - run through administrator
+netstat -aon |find /i "listening" |find "8083"
+taskkill /F /PID 26348
+
+
+rsp.db.userid=RSP_DEV_ADMIN1
+rsp.db.password=RSP_DEV_ADMIN1_DRSP_1
+
+QLAB03
+#rsp.db.userid=RSP_ADMIN_2
+#rsp.db.password=pi5st1ele9s 
+
+QLAB02
+rsp.db.url=jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=qespp2.unix.gsm1900.org)(PORT=7281))(CONNECT_DATA=(SID=qespp2)))
+rsp.db.userid=RSP_ADMIN_2
+rsp.db.password=pi5st1ele9s
+
+SAMSON
+qatdb101.unix.gsm1900.org
+username/pwd- QATAPP16/QATAPP16
+sid-QATDB101
+port-1521
+
+#Old Environment
+NPE01 :- QLAB–02, QLAB–03, ILAB02	
+NPE01B :- QLAB–06, QLAB–07	
+NPE02A :- PLAB–01, QLAB–01	
+
+NPE02C - Gitlab
+
+-------------------
+
+Stack change steps
+cf login -a https://api.sys.px-npe02c.cf.t-mobile.com/ 
+
+>>>>> PROD
+cf login -a https://api.sys.px-prd03c.cf.t-mobile.com/
+press number -> 0 or 1
+restart instance :- cf restart-app-instance subscriber-rsp-ilab02 0
+
+Loop :- for i in `seq 0 90` ; do cf restart-app-instance subscriber-rsp $i ; sleep 40 ; done
+
+>>>>>>
+restart app
+cf restart subscriber-rsp-ilab02
+
+---------------------------------------
+
+NTID
+Password
+switch to proper org and space
+cf restart-app-instance Test 0
+cf restart-app-instance Test 1
+cf restart-app-instance Test 2
+8:47
+cf restart-app-instance salesmetrics-rsp 0
+
+
+Sonar: mvn clean verify sonar:sonar -Dsonar.host.url=https://sonarqube.service.edp.t-mobile.com
+
+https://sonarqube.service.edp.t-mobile.com
+
+External Jar
+
+mvn install:install-file -Dfile=digitalservices-exception-2.5.jar -DgroupId=com.digitalservices-exception -DartifactId=digitalservices-exception -Dversion=2.5 -Dpackaging=jar
+
+#.gitConfig
+[core] 
+packedGitLimit = 512m 
+packedGitWindowSize = 512m 
+[pack] 
+deltaCacheSize = 2047m 
+packSizeLimit = 2047m 
+windowMemory = 2047m
+
+@Satya
+https://splunk-ss.t-mobile.com:8000/en-US/app/asm_mw/charge_rsp_new_foundation 
+
+Splunk Query 
+index=cloudfoundry "Error creating Sftp Session" | table cf_foundation, cf_app_name,cf_org_name, cf_space_name | stats count by  cf_foundation, cf_app_name,cf_org_name, cf_space_name 
+
+
+index=cloudfoundry cf_app_name="orderfulfillment" OR cf_app_name="processorderjob" OR cf_app_name="orderfulfillmentnofications"  cf_foundation="px-prd03c" OR cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod") |stats count by cf_app_name, Service_Status 
+
+
+index=cloudfoundry  cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  Service_Status=FAILED |stats count by cf_app_name 
+
+index=cloudfoundry Application_Name=orderfulfillment "RSPDB_updateShipmentDetails timed-out and no fallback available"|stats count by Application_Name
+
+Analyse Traffic-
+index=cloudfoundry cf_space_name="springboot_prod" cf_org_name = "DSG-CHARGE" |rex field=_raw Service_Status=(?<result>.+?)\|\| | stats count as Totals, count(eval(result="FAILED")) AS Errors, count(eval(result!="ERROR" AND result!="WARN")) AS Success by cf_app_name,Service_Name, Operation_Name | table cf_app_name,Service_Name,Operation_Name,Totals,Success,Errors | sort - OPERATION
+
+index=cloudfoundry Application_Name=orderfulfillment "RSPDB_updateShipmentDetails timed-out and no fallback available"|stats count by Application_Name
+
+SOAP service Query
+	• ProcessOrder
+		○ index=cloudfoundry    cf_foundation="px-prd03c" cf_org_name = "DSG-CHARGE" cf_space_name="springboot_prod"  cf_app_name="processorderjob-rsp-gren"  |table _raw
+	
+	• StroresalesMetricsProcessor
+		○ index=cloudfoundry    cf_foundation="px-prd03c" cf_org_name = "DSG-CHARGE" cf_space_name="springboot_prod"  cf_app_name="storesalesmetricsprocessor-rsp"  |table _raw
+	
+	• experience-servicequote-rsp 
+		○ index=cloudfoundry cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  cf_app_name= "experience-servicequote-*" | table _raw
+	
+	• experience-refund-rsp AND experience-receipt-dsg
+		○ index=cloudfoundry cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  cf_app_name="experience-receipt-*" OR "experience-refund-*"| table cf_app_name ,RPCDealerCredit_Channel_RespTime,GUID
+	
+	•   service-samson-rsp
+		○ index=cloudfoundry    cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  cf_app_name="service-samson-rsp-green" "POST /tuxedo/api/*"  |stats count by URL
+	
+	• capability-serviceagreement-rsp
+		○ index=cloudfoundry cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  cf_app_name="capability-serviceagreement-*"
+		○ As of now no logs
+	
+	• capability-memo-rsp
+		○ index=cloudfoundry cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  cf_app_name="capability-memo-*" | table _raw
+	
+	•  service-sms-dsg AND service-email-rsp
+		○ index=cloudfoundry cf_foundation="px-prd03c" (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  cf_app_name="service-email-*" OR "service-sms-*"| table cf_app_name ,RPCDealerCredit_Channel_RespTime,GUID
+
+#For Monitoring
+index=cloudfoundry sourcetype=cloudfoundry_app* (cf_org_name = "DSG-CHARGE") (cf_space_name="SpringBoot_Prod") cf_foundation="px-prd03c"  cf_space_name="SpringBoot_Prod" PARTNERID="*" Service_Name="*"  Operation_Name="*" Service_Status="*" | rex field=_raw Service_Status=(?<result>.+?)\|\| |search cf_foundation="px-prd03c" PARTNERID="*" Service_Name="*"  Operation_Name="*"  |  stats count as Totals, count(eval(result="FAILED")) AS Errors, count(eval(result!="FAILED" AND result!="PARTIAL")) AS Success, count(eval(result="PARTIAL")) AS Partial avg(Elapsed_Time) as avg_elapsed by cf_foundation,PARTNERID,Service_Name, Operation_Name | eval "Error %"=round((Errors/Totals)*100,1) | eval "Success %"=round((Success/Totals)*100,1)  | eval "Partial%"=round((Partial/Totals)*100,1)   | eval "Avg Response (ms)"=round(avg_elapsed,1) | eval "Success"=Totals-Errors     | table cf_foundation,PARTNERID,Service_Name, Operation_Name,Totals, Success, "Success %", Errors, "Error %" Partial, "Partial%" "Avg Response (ms)" | sort-Totals 
+ 
+mvn clean install -DskipTests
+ 
+https://bitbucket.service.edp.t-mobile.com/projects/DSG-BIMS-CR 
+ 
+After joining bridge, need to do this.
+
+http://billsummary-rsp-qlab03.test.px-npe01.cf.t-mobile.com/rsp/BillSummaryService?wsdl
+
+###Hari (SB-Version)
+https://gitlab.com/tmobile/DSG/dams/sb/customer/-/blob/feature/SpringBoot2.0/pom.xml
+
+https://gitlab.com/tmobile/DSG/dams/sb/postpaidsubscriber/-/blob/feature/ensemble_upgrade/pom.xml
+  
+1. Check flow for submitOrder (Saving order to DB)
+2.  Process order(Calling to SAP) flow
+3. updateShipmentInfo (SAP is calling to us)
+
+Springboot
+mvn spring-boot:run
+
+SAP support 499+ order
+
+Satya
+#MSSQL DB, server Name :- PRDPWSSAR0007.gsm1900.org\REPORTING 
+
+
+Teja
+index=cloudfoundry sourcetype=cloudfoundry_apps cf_org_name=DigitalBilling cf_space_name=Invoice-Management cf_foundation=* "cf_app_name=capability-servicequote" | rex "HTTP/1.1\" (?<ResponseCode>\d+) " | search ResponseCode=500
+
+https://splunk-ss-b.t-mobile.com:8000/en-US/app/digitalbilling/search?q=search%20index%3Dcloudfoundry%20sourcetype%3Dcloudfoundry_apps%20cf_org_name%3DDigital-Billing-QLAB%20cf_space_name%3DInvoice-Management%20%22cf_app_name%3DCapability-ServiceQuote-QLAB03%22%20%22%5C%22quoteId%5C%22%22%20%7C%20rex%20%22%5C%22quoteId%5C%22%3A%5C%22(%3F%3CquoteId%3E%5Cd%2B)%5C%22%22%20%7C%20rex%20%22%5C%22accountNumber%5C%22%3A%5C%22(%3F%3CaccNo%3E%5Cd%2B)%5C%22%22%20%7C%20stats%20count%20by%20quoteId%2CaccNo&earliest=-24h%40h&latest=now&display.page.search.mode=smart&dispatch.sample_ratio=1&display.page.search.tab=statistics&display.general.type=statistics&sid=1600316269.426346_802DBE3C-CB27-4EE3-85F0-D7A19F925C93
+ 
+ 
+mom = minits of meeting
+nod = night of deployment
+
+http://b2bdashboard.apps.px-npe02c.cf.t-mobile.com/orderinfo
+ 
+#Sql - 
+
+SQL Query
+select * from B2B_Bulk_order order by CREATION_DATE desc FETCH FIRST 20 ROWS ONLY ;
+
+
+
+	select * from b2b_bulk_order where partner_order_id='968086827'; 
+	select * from b2b_bulk_order where universal_order_id='968086827'; 
+	select * from b2b_bulk_order_details where universal_order_id = 'ESPCOP99013837035807';
+	select * from b2b_channel_orders where universal_order_id = 'ESPCOP99013837035807';
+
+Latest single record
+SELECT universal_order_id FROM (SELECT * FROM B2B_Bulk_order ORDER BY creation_date DESC) WHERE ROWNUM = 1;
+
+
+update b2b_bulk_order set order_status='COMPLETE' where partner_order_id='968086827';
+
+b2bdashboard
+krishna0123/Pass@word0123
+
+
+https://confluencesw.t-mobile.com/display/MET/Business+Order+Flow
+
+https://gitlab.com/tmobile/DSG/charge/utils/b2bdashboard/-/tree/feature/okta
+
+http://b2bdashboard.apps.px-npe02c.cf.t-mobile.com/orderinfo
+
+SonarQube
+Benefit (JUnit): 
+1. Increase productivity/stability in code.
+2. Coding standard keep maintained as per TDD approach.
+
+Benefit (Bugs, Codesmell, Vulnerability, Code duplicates & Code refractoring): 
+1. Reduce maintanance time
+2. Performance increased
+3. Deliver bug free code
+4. Codebase(.jar) size reduced
+
+JUNit:-
+
+1. It should be written for each (+/-)ve scenario, which help to build confidence in code. And if new dev start working in the existing method/class first time, they would get quick alert for any failure occurrence, Once.
+
+2. It would be 1st time effort to write JUnit, and later on it will reduce development effort while tracing all error/bugs possibility while develpment. So due to this way, we can deliver also bug free code in one go. 
+
+
+Code Smell
+1. If code written on bad pattern. So the chance for occurring error/exception would be more on later.
+(i.e. RuntimeException, try with resources is better to use, unused method etc.)
+
+Bugs(Base on severity)
+ Blocker(Highly Impact on production system):- Ex. Closing connection for jdbc/file IO stream . So it need to be fixed before deploying on production.
+ Critical(Not much but it will impact on prod system):- SQL injection  
+ Major(Not impact on prod system but it will impact on productivity of the developer):- ex. like unused multiple variables.
+ 
+Minor:- Formatting code & not used too much code in a single block of method, declaring variable name should be follow standard naming conventions.
+
+Code Duplicates:-
+1. Redundant code is unecessary making huge line of code block & file size. And also it cause be more chance of bugs coming. So it will create difficulty in maintanance.   
+   
+http://myalb-1856615957.ap-south-1.elb.amazonaws.com/
+
+index=* "23574164" "asyncNotifyServiceChangeResult"
+samsonorderid=23533383
+
+index=* "<associatedTransactionId>23574164</associatedTransactionId>" "asyncNotifyServiceChangeResultRequest"
+ESPCOP99015979641363 - ilab02
+
+
+##RMQ Credentials - prod##
+https://dsgcharge-px1-rmq01-prd.px-prd1106.pks.t-mobile.com/#/queues
+usr - chargermqprod
+pwd - ch@rge3mQPr0d
+
+
+DAMS - proxy qtest
+https://gitlab.com/tmobile/DSG/dams/apigee/api-dice-customer/-/tree/feature/qTest
+
+
+chron job scheduler - for each 2 mnt
+*/2 * * * *
+
+
+QTest
+Please create a JIRA SD ticket from the below link for this request.
+https://jirasd.t-mobile.com/servicedesk/customer/portal/3/group/10
+
+
+https://jirasd.t-mobile.com/servicedesk/customer/portal/3/SDLC-51489
+
+
+
+Need to folloup with canvas team to make pristine app
+
+My New token - PCMj3yyGJx99y4iixZxP
+
+Ajay
+index=cloudfoundry cf_foundation="px-prd0*c" cf_org_name=DSG-CHARGE (cf_space_name=SpringBoot_Prod OR cf_space_name=Experience-API) cf_app_name="*-rsp*" "crashed" |stats count by cf_app_name
+
+Teja
+
+index=cloudfoundry sourcetype=cloudfoundry_apps cf_org_name=Digital-Billing-QLAB cf_space_name=Invoice-Management "cf_app_name=Capability-ServiceQuote-QLAB02" "\"quoteId\"" | rex "\"quoteId\":\"(?<quoteId>\d+)\"" | rex "\"accountNumber\":\"(?<accNo>\d+)\"" | stats count by quoteId,accNo
+
+
+service registry
+https://smp-ui.prod-services.t-mobile.com/registry/show
+
+ADGPT9869H 
+
+Billing Team End Point :-  https://dsg-api-svcs.t-mobile.com
+
+https://stackoverflow.com/questions/15316022/automatically-reconnect-rabbitmq-channels
+https://github.com/jhalterman/lyra
+
+SFTP team name - SAMSON
+AmdocsNPEDevOPSInfra <AmdocsNPEDevOPSInfra@T-Mobile.com>
+
+Start server
+
+Go to location - C:\Program Files\RabbitMQ Server\rabbitmq_server-3.8.8\sbin
+rabbitmq-plugins enable rabbitmq_management
+rabbitmq-server - for start
+rabbitmqctl.bat stop - for stop
+port=5672
+http://localhost:15672
+http://localhost:8080/javainuse-rabbitmq/producer?empName=emp1&empId=emp001
+
+VPN-Network-PCI
+Order Placed: 
+2020-09-18 10:12:34   
+Request Number: 
+REQ0861331   
+Estimated Delivery Date of Complete Order:  
+2020-09-18
+
+Shanthi :-
+
+Query for orderfulfillment operation monitoring :
+index=cloudfoundry (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  Service_Status="*" cf_app_name="orderfulfillment-rsp*"  NOT "getOrderStatus"| table  cf_app_name,Operation_Name ,Error_Details,Service_Status,Backend_Name,Message_Code,Message_Description,GUID
+
+Query for submit order monitoring :
+index=cloudfoundry (cf_org_name = "DSG-CHARGE") (cf_space_name="springboot_prod")  Service_Status="*" cf_app_name="orderfulfillment-rsp*"   "submitOrder"| table  cf_app_name,Operation_Name ,Error_Details,Service_Status,Backend_Name,Message_Code,Message_Description,GUID
+
+Query for asyncNotifyServiceChangeResultRequest
+index=cloudfoundry  <SAMSONORDERID>"asyncNotifyServiceChangeResultRequest"  NOT "Health check call from HAProxy"
+
+Query for SAP orderID :
+index=cloudfoundry  "<transactionIdValue>" "shipmentInfoUpdateRequest"
+ 
+Steps to check the order flow :
+•	Take the GUID from submit order monitoring query.
+•	Search with GUID , we will get the Submit Order flow copy the UniversalOrderId from the ordercreateResponse.
+•	Use this query to get all the processorder for that UniversalOrderId :
+index=cloudfoundry  "processOrderRequest" "<UniversalOrderId >" cf_app_name=orderfulfillment-rsp
+•	Take the GUID's and search one by one
+•	we can find the InstallmentPlanID and <orderId>25243989</orderId> in createVarActivationOrderOutput tuxedo response.
+•	we can find the sap client OrderId in  esiProcessOrderRequest element is <transactionId>
+•	Note:
+•	in one GUID flow we can find the InstallmentPlanID and samsonOrderId
+•	in other GUID flow we can find the SAP client Order id
+•	Copy the transactionId value and use the Query for SAP orderID  to get sap orderId
+•	  get the value from <salesOrderNumber> element.
+ 
+
+Capture the universalOrderId,samsonorderid ,sapclientorderid ,installmentID and sapOrdernumber in excel sheet , I have captured for few orders please take a look .
+
+--->>>
+
+Samson Digital Team,
+
+Request to check this B2B issue where we don't see asyncNotifyServiceChangeResult call triggered to MW from Samson Digital Team. Can you please do the needful to process this order from Samson.
+
+Samson Order #28856
+Associated Order #23529994
+TB#770652003
+
+MW URL: https://qattbco523.unix.gsm1900.org:4116/eProxy/service/RatePlanManagementService_SOAP_V1 
+
+Regards,
+DPO Team.
+
+Weekdays
+March - 2125
+April - 2750
+May   - 2375
+June  - 2750
+July  - 2375
+Aug   - 2500
+
+Weekend
+Aug - 2500
+--------------
+Total = 17375	
+
+weekend aug- 2500
+
+RabbitMq
+dsg-dfm-rmq03-npe.px-npe1106.pks.t-mobile.com port: 30134 
+admin/dfmRmq@adm1N 
+
+Swagger
+https://service-samson-rsp-qlab02.test.px-npe02c.cf.t-mobile.com/v2/api-docs?group=csRsvSub
+---------------
+
+Access token:
+
+eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vcGtzYXBpLnB4LW5wZTEwMDEucGtzLnQtbW9iaWxlLmNvbTo4NDQzL3Rva2VuX2tleXMiLCJraWQiOiJrZXktMSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyYzY1MGFmZTYxYzU0Y2RhODc3ZmFhMDExNzNiZDM1ZS1yIiwic3ViIjoiZmVmMmVjMDItNTg2Ni00YzQxLTg2MzAtZGE2ZmMxOWJiZWVhIiwiaWF0IjoxNjAzMzgxMzEyLCJleHAiOjE2MDM0MDI5MTIsImNpZCI6InBrc19jbHVzdGVyX2NsaWVudCIsImNsaWVudF9pZCI6InBrc19jbHVzdGVyX2NsaWVudCIsImlzcyI6Imh0dHBzOi8vcGtzYXBpLnB4LW5wZTEwMDEucGtzLnQtbW9iaWxlLmNvbTo4NDQzL29hdXRoL3Rva2VuIiwiemlkIjoidWFhIiwiYXVkIjpbIm9wZW5pZCIsInBrc19jbHVzdGVyX2NsaWVudCJdLCJncmFudGVkX3Njb3BlcyI6WyJvcGVuaWQiLCJyb2xlcyJdLCJhbXIiOlsiZXh0IiwicHdkIl0sImF1dGhfdGltZSI6MTYwMzM4MTMxMiwiZ3JhbnRfdHlwZSI6InBhc3N3b3JkIiwidXNlcl9uYW1lIjoiZG1pc2hyYTkiLCJvcmlnaW4iOiJsZGFwIiwidXNlcl9pZCI6ImZlZjJlYzAyLTU4NjYtNGM0MS04NjMwLWRhNmZjMTliYmVlYSIsInJldl9zaWciOiI0NzQ5ZTRmNiJ9.oIBYnuc55mlos4tXtooI3SwHAB4If-xHxHNvVhyd0zevjJ3NQWgSRVJpVc-KUqC4jV5O5DSW1QR_mlfwMpQ7TRmz7maDG9-RNrlZh6kxUS1LIwFE2xfMA55REZorSiumFPesUh_IZ3P0tJjs6K0KsirJxe5cGLv1BGolNCvxEGIQuy8GVm5Vx3q1CsIdL4Y8lCC5UrgbtV6N8w_zTGOoId9W9K4eTfLQh0gs4mw4bULn7mzd8R0pfCeqbnYtvZPWWZwf1abyA6NlwhXRtGMDiBDe7gI4NVoBbghLeArZuNbJ0u4tjuFEfGHtCCUam39etYQuvyBM6pROxH1G8KoH0A
+
+
+----
+
+1. Cloud Bus
+2. RabbitMQ Outage
+
+
+
+4469
+
+
+1. Address proof - Rent Agreement
+2. PAN Card
+3. 
+
+
+
+
+
+----
+
+
+Fifth AWS Solutions Architect - Associate Challenge Has Passed
+
+Your ApiServer is inside an AWS VPC named ApiVPC. There is another server named PeerServer, which is hosted in a VPC named PeerVPC. These two VPCs are connected using AWS VPC Peering. These two servers need to be able to communicate with each other, over private DNS, using all ports. However, when one of your coworkers attempts to communicate with the PeerServer from within the ApiServer, he is receiving timeout errors. Find out why and fix the issue. Ensure that any other servers that may be launched inside the same subnet as the ApiServer have the same level of access as the ApiServer.
+
+
+
+-------
+Jirasd Access
+For access issues while creating RFC - Please refer to email: JIRA SD login issues resolution.
+- JiraSD.T-mobile.com - Access Issues
+Resolution - to Validate - OKTA Team implemented a new Security Policy that all users must configure through t-mobile.okta.com.
+- Go to T-Mobile.okta.com
+- Go to Your Profile
+- Settings
+- Verification (ensure you download and use "OKTA VERIFY" from App Store)
+- You will need to setup using the web interface provided Q Scan Code or Select Text Link to your phone
+Once this is configured, it will authorize logins
+To search for a RFC - Click "Request" on top right and then "All Requests" or " My Requests". Direct link: https://jirasd.t-mobile.com/servicedesk/customer/user/requests?status=open&reporter=all
+
+
+--------------------------AWS---------------------
+
+"aws" and "newbie2019"
+
+https://www.examtopics.com/exams/amazon/aws-certified-solutions-architect-associate/view/18/
+
+
+https://www.coursera.org/programs/capgemini-learning-program-71mtd?authProvider=capgemini&isExternal=true&productId=S0yEGONgEea7sQoF2sbDLA&productType=course&showMiniModal=true
+
+
+
+1. DataSync
+2. Aws global accelator
+3. Data Migration service
+4. Auto Scaling policy
+5. AWS Secrets Manager
+6. transit gateway
+7. ECS, Fargate
+8. AWS Transit Gateway
+9. AWS step function
+10. EBS volume type
+11. DynamoDB table for provisioned capacity
+12. DynamoDB table for on-demand capacity
+
+New Service C02 - There are few new additions like Aurora Serverless, AWS Global Accelerator, FSx for Windows, FSx for Lustre
+
+
+Scrum Mindmap
+
+
+--------------
+
+Complain no hdfc - 21027889661
+
+9068
+
+customerservices.cards@hdfcbank.com
+
+------
+
+
+Dear Customer,
+We would like to confirm that the refund due for an amount of Rs: 6850.01 against Yatra reference number 100305924202 was processed on January 27, 2021 to your account.
+
+Kindly note that your bank may take 15 to 20 working days to refund this amount into your bank account.
+
+If at any time you need to contact the bank about the refund, please use the Bank Transaction ID 9999982051.
+
+Please Note: For refund amount breakup please visit My booking section and see the Booking summary document for this booking.
+Best Regards,
+Yatra Team
+
+
+---
+Token
+
+NS5EjEE-6quCZyaryxNJ
+
+
+
+
+
+
+
+
+Topic
+Details
+
+TIBCO Vs RSP
+Cross competency is needed. On TIBCO side, atleast troubleshooting, deployment and other operational aspects
+
+Team Representative
+Rather than individual, representative role has to be made visible
+
+Topic to Closure
+Any topic which is initiated, should go to closure, like Karate - ??
+
+Cultural Change
+Technical Code quality topic to be taken to further discussions and show some percenatage of improvement every sprint - Working
+
+Project the good work
+Visibility in terms of benefits of User Stories we work - ??
+
+Customer Topics
+We should look beyond Charge and DFM and see what other opportunities we have contribute to DSG space
+May be a new API or an application that will make it more efficient. - Working JWT Client
+
+Customer Topics
+Repetitive issues with partners such as Inseego/TFB etc – Optimization is a part of our daily job.
+But additionally we may come up with a solution specifically for them to make their dealings easier with TMO.
+This in turn may contribute to TMO revenue - ??
+
+Customer Topics
+Operational Efficiency – Automation Enforced and measured – This I believe is already on the radar where we have the numbers but the leaders are still not seeing it in action. May be a NPE health Dashboard will help with more visibility to it.
+
+Customer Topics
+Tools to transition to – Springboot, Apache Camel or likes
+Time and cost efficient conversion tool so that it is not another 1-2 year project for entire DSG
+Opportunities to build smaller services (micro services) without impacting the customer experience- apparently DSG group may not want to bear the cost of changes the clients have to go through for our innovations
+
+Customer Topics
+Any cost effective feature to make our apps platform agnostic – This is already a work in progress with PKS initiative. It is worth exploring something that they haven’t done. Right now we are just dropping apps to PKS with no road map to production.
+ So I am inclined to believe that there are challenges with effectiveness in moving to containerized apps if they are not really looking at true cloud infrastructure.
+
+Customer Topics
+a) Hygeia dashboard was being built internally in TMO to report out data from different sources like Gitlab where numbers of code check-ins, Deployments (Pass/fail rate), Code quality scans, Automation success rates etc could be measured. But
+ not sure what state that is and if that is usable yet
+b) Similar reports could be built for operational efficiency as well – sprint reports, Defects, Utilization and other KPIs that are not “out of box” from Jira or may not be consolidated in a view that makes more sense to leadership. Again this is something
+ for the group not a DFM or Charge dashboard
+
+Pristine Topics
+Right now, we are working in bits and pieces, Billing and Presentation team has already done most part of it. There should be some one from DFM/CHARGE who can be a SPOC
+
+--------------------------------------
+Data Structure
+
+Array
+LinkedList
+Stack
+Queue
+
+BinaryTree
+BinarySearchTree
+Heap
+Hashing
+
+Graph
+Matrics
+Misc
+Advance Data Structure
+
+1. Java
+2. Springboot/SpringMVC
+3. Aws
+4. MongoDB
+5. Rest/Soap
+6. PCF
+
+
+
+addban
+https://addbandollaradjustment-rsp-ilab02-green.dev.px-npe02c.cf.t-mobile.com/info
+{"build":{"artifact":"@project.artifactId@","version":"@project.version@"}}
+
+
+
+Follow the below comment:
+
+1. I am not satisfied with my appraisal this year, as I got just < 3% salary hike first time while spending 1.8 year in Capgemini, and last year I got 0 %. 
+2. I don't think, here my skill/certification/knowledge got evaluated properly for my growth.
+3.  H1-B also one reason, as I approached many time but didn't get success response for this year, It seems onsite opportunity is not possible here.
+
+
+9234025 - Java/SB/Microservices
+	8088172 - AWS Architect - Not Selected
+9325706 /9405382 - Java/Spring/Hibernate
+8262278 - Java8/11, Spring, Hibernate
+
+Wipro
+
+devesmishr21988561
+Wipro@202!
+
+IJP Application - 9234025  – Interview Shortlist
+
+--------------------------
+
+Clearance
+
+ICRES - Access Card
